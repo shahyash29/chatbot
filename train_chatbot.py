@@ -9,12 +9,13 @@ from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 from keras.optimizers import SGD
 import random
+from keras.preprocessing.sequence import pad_sequences
 
 words=[]
 classes = []
 documents = []
 ignore_words = ['?', '!']
-data_file = open('intents.json').read()
+data_file = open('./data/intents.json').read()
 intents = json.loads(data_file)
 
 
@@ -70,10 +71,22 @@ for doc in documents:
     training.append([bag, output_row])
 # shuffle our features and turn into np.array
 random.shuffle(training)
-training = np.array(training)
+# Pad sequences to ensure uniform length
+max_length = max(len(x[0]) for x in training)  # Get the maximum length of sequences
+padded_sequences = [
+    pad_sequences([x[0]], maxlen=max_length)[0] for x in training
+]
+output_vectors = [x[1] for x in training]
+
+# Convert to NumPy arrays
+padded_sequences_array = np.array(padded_sequences)
+output_vectors_array = np.array(output_vectors)
+
+# Combine padded sequences and output vectors into a tuple
+training_array = (padded_sequences_array, output_vectors_array)
 # create train and test lists. X - patterns, Y - intents
-train_x = list(training[:,0])
-train_y = list(training[:,1])
+train_x = list(training_array[0])
+train_y = list(training_array[1])
 print("Training data created")
 
 
@@ -87,7 +100,7 @@ model.add(Dropout(0.5))
 model.add(Dense(len(train_y[0]), activation='softmax'))
 
 # Compile model. Stochastic gradient descent with Nesterov accelerated gradient gives good results for this model
-sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
+sgd = SGD(learning_rate=0.01, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 
 #fitting and saving the model 
