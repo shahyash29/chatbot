@@ -5,6 +5,7 @@ import json
 import pickle
 nltk.download('punkt')
 nltk.download('wordnet')
+nltk.download('omw-1.4')
 
 import numpy as np
 from keras.models import Sequential
