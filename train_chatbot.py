@@ -3,6 +3,7 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 import json
 import pickle
+nltk.download('punkt')
 
 import numpy as np
 from keras.models import Sequential
