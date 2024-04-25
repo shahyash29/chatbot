@@ -4,6 +4,7 @@ lemmatizer = WordNetLemmatizer()
 import json
 import pickle
 nltk.download('punkt')
+nltk.download('wordnet')
 
 import numpy as np
 from keras.models import Sequential
